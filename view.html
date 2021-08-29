@@ -51,7 +51,7 @@ function convertCSVtoArray(str){ // 読み込んだCSVデータが文字列と�
   for(var i=0;i<tmp.length-1;i++){
       data.push({position: [result[i][1],result[i][2]], content: String(result[i][0])});
   }
-  var myMap= L.map('map').setView([31.647041,131.021027], 18);
+  var myMap= L.map('map').setView([30,130], 18);
   // タイルレイヤにはオープンストリートマップを拝借
   var osm = L.tileLayer("https://tile.openstreetmap.jp/{z}/{x}/{y}.png", {
     attribution: "<a href='https://www.openstreetmap.org/copyright'>OpenStreetMap</a> contributors"
