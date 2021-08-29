@@ -1,0 +1,84 @@
+
+<!DOCTYPE html>
+<html>
+        <head>
+                <title>posplot</title>
+
+        </head>
+
+        <body>
+<h1>posplot</h1>
+        <link rel="stylesheet" href="https://unpkg.com/leaflet@1.6.0/dist/leaflet.css" />
+<script src="https://unpkg.com/leaflet@1.6.0/dist/leaflet.js"></script>
+
+<div id="map" style="width: 950px; height: 950px;"></div>
+<script type="text/javascript">
+var toDoubleDigits = function(num) {
+  num += "";
+  if (num.length === 1) {
+    num = "0" + num;
+  }
+ return num;
+};
+//CSVファイルを読み込む関数getCSV()の定義
+function getCSV(){
+    var date = new Date();
+    var yyyy = date.getFullYear();
+    var mm = toDoubleDigits(date.getMonth() + 1);
+    var dd = toDoubleDigits(date.getDate());
+    let filename = String(yyyy) + String(mm) + String(dd) +".csv";
+    var req = new XMLHttpRequest(); // HTTPでファイルを読み込むためのXMLHttpRrequestオブジェクトを生成
+    req.open("get",filename , true); // アクセスするファイルを指定
+    req.send(null); // HTTPリクエストの発行
+
+    // レスポンスが返ってきたらconvertCSVtoArray()を呼ぶ
+    req.onload = function(){
+        convertCSVtoArray(req.responseText); // 渡されるのは読み込んだCSVデータ
+    }
+}
+
+// 読み込んだCSVデータを二次元配列に変換する関数convertCSVtoArray()の定義
+function convertCSVtoArray(str){ // 読み込んだCSVデータが文字列として渡される
+    var result = []; // 最終的な二次元配列を入れるための配列
+    var tmp = str.split("\n"); // 改行を区切り文字として行を要素とした配列を生成
+
+    // 各行ごとにカンマで区切った文字列を要素とした二次元配列を生成
+    for(var i=0;i<tmp.length;++i){
+        result[i] = tmp[i].split(',');
+    }
+ // 位置情報と表示データの組み合わせ
+  var data = new Array();
+  for(var i=0;i<tmp.length-1;i++){
+      data.push({position: [result[i][1],result[i][2]], content: String(result[i][0])});
+  }
+  var myMap= L.map('map').setView([31.647041,131.021027], 18);
+  // タイルレイヤにはオープンストリートマップを拝借
+  var osm = L.tileLayer("https://tile.openstreetmap.jp/{z}/{x}/{y}.png", {
+    attribution: "<a href='https://www.openstreetmap.org/copyright'>OpenStreetMap</a> contributors"
+  });
+  osm.addTo(myMap);
+    var icon = L.icon({
+      iconUrl: 'pin.png',
+
+    iconSize:     [30, 50], // アイコンのサイズ
+    iconAnchor:   [16, 52], // マーカーの位置に対応するアイコンの位置
+    popupAnchor:  [0, -55] // ポップアップを開く基準
+    });
+  for (i = 0; i < data.length; i++) {
+    var myPopup = L.popup({
+      // 他のPopupが開いたときに閉じない設定
+      autoClose: false
+    });
+    myPopup.setContent(data[i].content);
+
+    var myMarker = L.marker(data[i].position,{icon : icon});
+    myMarker.bindPopup(myPopup);
+    myMarker.addTo(myMap);
+  }
+
+}
+getCSV();
+//setTimeout("location.reload()",5000);
+</script>
+        </body>
+</html>
